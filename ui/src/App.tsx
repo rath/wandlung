@@ -1,26 +1,24 @@
-import { useState } from 'react'
-import { Button } from 'antd'
-import './App.css'
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './layout/MainLayout';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Pages
+import VideosPage from './pages/video/VideosPage';
+import SubtitlesPage from './pages/subtitle/SubtitlesPage';
+import SettingsPage from './pages/setting/SettingsPage';
 
+const App: React.FC = () => {
   return (
-    <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <Button type="default" onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </Button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <MainLayout>
+      <Routes>
+        <Route path="/" element={<Navigate to="/videos" replace />} />
+        <Route path="/videos" element={<VideosPage />} />
+        <Route path="/subtitles" element={<SubtitlesPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Routes>
+    </MainLayout>
+  );
+};
 
-export default App
+export default App;
+
