@@ -4,6 +4,8 @@ import urllib.request
 from tempfile import NamedTemporaryFile
 
 from django.core.exceptions import ValidationError
+from django.conf import settings as django_settings
+from ffmpy import FFmpeg
 import yt_dlp
 from PIL import Image
 from django.core.files import File
@@ -52,8 +54,18 @@ def download_video(request, payload: VideoDownloadRequest):
         with Image.open(temp_file.name) as img:
             img.save(thumbnail_path)
 
+    # Extract audio
+    audio_path = f'{video_id}.aac'
+    audio_encode_option = '-c:a libfdk_aac -profile:a aac_he_v2 -b:a 16k' if settings.use_he_aac_v2 else '-c:a aac -b:a 128k'
+    ff = FFmpeg(
+        executable=django_settings.FFMPEG_BIN,
+        inputs={video_path: None},
+        outputs={audio_path: f'-y {audio_encode_option} -vn'},
+    )
+    ff.run()
+
     # Save to database
-    with open(video_path, 'rb') as video_file, open(thumbnail_path, 'rb') as thumb_file:
+    with open(video_path, 'rb') as video_file, open(thumbnail_path, 'rb') as thumb_file, open(audio_path, 'rb') as audio_file:
         video = YouTubeVideo.objects.create(
             video_id=video_id,
             thumbnail=File(thumb_file),
@@ -61,11 +73,13 @@ def download_video(request, payload: VideoDownloadRequest):
             width=info.get('width', None),
             height=info.get('height', None),
             title=info.get('title', None),
-            original_video=File(video_file)
+            original_video=File(video_file),
+            audio=File(audio_file),
         )
 
     # Clean up
     os.remove(thumbnail_path)
+    os.remove(audio_path)
     return {'video_id': video.video_id}
 
 

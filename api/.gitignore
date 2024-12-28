@@ -2,6 +2,7 @@ __pycache__/
 *.py[cod]
 .venv/
 /*.mp4
+/*.aac
 /*.jpg
 
 # Distribution / packaging

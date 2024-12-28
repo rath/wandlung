@@ -99,6 +99,15 @@ wheels = [
 ]
 
 [[package]]
+name = "ffmpy"
+version = "0.5.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4d/66/5697a7421c418ccbfae87b7e6503b480070f7cb16c25c77201afc6246348/ffmpy-0.5.0.tar.gz", hash = "sha256:277e131f246d18e9dcfee9bb514c50749031c43582ce5ef82c57b51e3d3955c3", size = 5523 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/5d/65f40bd333463b3230b3a72d93873caaf49b0cbb5228598fafb75fcc5357/ffmpy-0.5.0-py3-none-any.whl", hash = "sha256:df3799cf5816daa56d4959a023630ee53c6768b66009dae6d131519ba4b80233", size = 6008 },
+]
+
+[[package]]
 name = "jmespath"
 version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -261,6 +270,7 @@ dependencies = [
     { name = "django-extensions" },
     { name = "django-ninja" },
     { name = "django-storages" },
+    { name = "ffmpy" },
     { name = "pillow" },
     { name = "python-decouple" },
     { name = "yt-dlp" },
@@ -273,6 +283,7 @@ requires-dist = [
     { name = "django-extensions", specifier = ">=3.2.3" },
     { name = "django-ninja", specifier = ">=1.3.0" },
     { name = "django-storages", specifier = ">=1.14.4" },
+    { name = "ffmpy", specifier = ">=0.5.0" },
     { name = "pillow", specifier = ">=11.0.0" },
     { name = "python-decouple", specifier = ">=3.8" },
     { name = "yt-dlp", specifier = ">=2024.12.23" },

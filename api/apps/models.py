@@ -12,6 +12,7 @@ class YouTubeVideo(models.Model):
     height = models.PositiveIntegerField()
     title = models.CharField(max_length=255)
     original_video = models.FileField(upload_to='videos/')
+    audio = models.FileField(upload_to='audios/', null=True)
 
     def __str__(self):
         return self.title

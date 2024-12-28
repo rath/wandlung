@@ -141,3 +141,5 @@ STORAGES = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+FFMPEG_BIN = config('FFMPEG_BIN', default='/opt/homebrew/bin/ffmpeg')
