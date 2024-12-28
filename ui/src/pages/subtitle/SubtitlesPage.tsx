@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Space } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import TranscribeVideoModal from './TranscribeVideoModal';
 import type { ColumnsType } from 'antd/es/table';
 import EditSubtitleDrawer from './EditSubtitleDrawer';
@@ -89,13 +90,12 @@ const SubtitlesPage: React.FC = () => {
       render: (_, record) => (
         <Button
           type="link"
+          icon={<EditOutlined />}
           onClick={() => {
             setEditingItem(record);
             setOpenDrawer(true);
           }}
-        >
-          Edit
-        </Button>
+        />
       ),
     },
   ];
@@ -114,7 +114,7 @@ const SubtitlesPage: React.FC = () => {
           onClick={() => setTranscribeModalOpen(true)}
           icon={<span role="img" aria-label="audio">🎙️</span>}
         >
-          Add by Transcribing
+          Create from transcribing
         </Button>
       </Space>
       <Table
