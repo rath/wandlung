@@ -5,6 +5,10 @@ from wandlung.storages import MediaStorage
 
 
 class YouTubeVideo(models.Model):
+    class Meta:
+        verbose_name = 'YouTube Video'
+        verbose_name_plural = 'YouTube Videos'
+
     video_id = models.CharField(max_length=20, unique=True)
     thumbnail = models.ImageField(upload_to='thumbnails/')
     duration = models.DurationField()
@@ -12,7 +16,7 @@ class YouTubeVideo(models.Model):
     height = models.PositiveIntegerField()
     title = models.CharField(max_length=255)
     original_video = models.FileField(upload_to='videos/')
-    audio = models.FileField(upload_to='audios/', null=True)
+    audio = models.FileField(upload_to='audios/')
 
     def __str__(self):
         return self.title
@@ -33,6 +37,10 @@ VIDEO_HEIGHT_CHOICES = [
 ]
 
 class Settings(models.Model):
+    class Meta:
+        verbose_name = 'Settings'
+        verbose_name_plural = 'Settings'
+
     openai_api_key = models.CharField(max_length=255, blank=True, null=True)
     anthropic_api_key = models.CharField(max_length=255, blank=True, null=True)
     max_video_height = models.IntegerField(default=720, choices=VIDEO_HEIGHT_CHOICES)
