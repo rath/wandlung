@@ -90,7 +90,7 @@ def delete_video(request, video_id: str):
         return api.create_response(request, {'detail': 'Video not found'}, status=404)
 
 
-@api.get("/settings")
+@api.get("/settings", response=SettingsSchema)
 def get_settings(request):
     settings = Settings.objects.first()
     if not settings:
@@ -98,7 +98,7 @@ def get_settings(request):
     return settings
 
 
-@api.post("/settings")
+@api.post("/settings", response=SettingsSchema)
 def update_settings(request, payload: SettingsSchema):
     settings = Settings.objects.first()
     if not settings:
