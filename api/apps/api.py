@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 import yt_dlp
 from PIL import Image
 from django.core.files import File
-from django.urls import reverse
 from ninja import NinjaAPI, Schema, ModelSchema
 
 from apps.models import YouTubeVideo, Settings
@@ -18,7 +17,8 @@ api = NinjaAPI()
 class SettingsSchema(ModelSchema):
     class Config:
         model = Settings
-        model_fields = ['openai_api_key', 'anthropic_api_key', 'max_video_height', 'use_he_aac_v2']
+        model_fields = "__all__"
+
 
 class VideoDownloadRequest(Schema):
     url: str
@@ -34,7 +34,7 @@ def download_video(request, payload: VideoDownloadRequest):
     ydl_opts = {
         'format': f"bestvideo[height<={settings.max_video_height}]+bestaudio/best[height<={settings.max_video_height}]/best",
         'merge_output_format': 'mp4',
-        'outtmpl': 'videos/%(id)s.%(ext)s',
+        'outtmpl': '%(id)s.%(ext)s',
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
@@ -44,7 +44,7 @@ def download_video(request, payload: VideoDownloadRequest):
         video_path = ydl.prepare_filename(info)
 
     # Download thumbnail
-    thumbnail_path = f'videos/{video_id}.jpg'
+    thumbnail_path = f'{video_id}.jpg'
     with NamedTemporaryFile(delete=False) as temp_file:
         with urllib.request.urlopen(thumbnail_url) as response:
             temp_file.write(response.read())

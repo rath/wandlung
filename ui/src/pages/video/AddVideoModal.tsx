@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Input, Spin, Button } from 'antd';
 
 interface AddVideoModalProps {
@@ -9,6 +9,12 @@ interface AddVideoModalProps {
 const AddVideoModal: React.FC<AddVideoModalProps> = ({ open, onClose }) => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setYoutubeUrl('');
+    }
+  }, [open]);
 
   const handleDownload = async () => {
     setIsDownloading(true);
@@ -21,10 +27,13 @@ const AddVideoModal: React.FC<AddVideoModalProps> = ({ open, onClose }) => {
         },
         body: JSON.stringify({ url: youtubeUrl }),
       });
-      // TODO: Close this modal reload parent VideosPage.
-      console.log(response);
+
+      if (!response.ok) {
+        throw new Error(`Failed to download video: Status: ${response.status}`);
+      }
+      onClose();
     } catch (error) {
-      console.error(error);
+      console.error('Download error', error);
     } finally {
       setIsDownloading(false);
     }
