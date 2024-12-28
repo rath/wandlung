@@ -76,3 +76,13 @@ def list_videos(request):
         })
     return video_list
 
+
+@api.delete('/videos/{video_id}')
+def delete_video(request, video_id: str):
+    try:
+        video = YouTubeVideo.objects.get(video_id=video_id)
+        video.delete()
+        return {'success': True}
+    except YouTubeVideo.DoesNotExist:
+        return api.create_response(request, {'detail': 'Video not found'}, status=404)
+

@@ -1,41 +1,58 @@
-import React, { useState } from 'react';
-import { Button, Table, Space, Image } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, Table, Space, Image, message, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import AddVideoModal from './AddVideoModal';
 
 interface VideoItem {
-  key: string;
+  video_id: string;
   title: string;
   duration: string;
-  resolution: string;
-  thumbnail: string;
+  width: number;
+  height: number;
+  thumbnail_url: string;
 }
 
 const VideosPage: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Example data
-  const dataSource: VideoItem[] = [
-    {
-      key: '1',
-      title: 'My Awesome YouTube Video',
-      duration: '12:34',
-      resolution: '1920x1080',
-      thumbnail: 'https://via.placeholder.com/120x90',
-    },
-    {
-      key: '2',
-      title: 'Another Great Video',
-      duration: '10:00',
-      resolution: '1280x720',
-      thumbnail: 'https://via.placeholder.com/120x90',
-    },
-  ];
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchVideos = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/videos');
+      if (!response.ok) throw new Error('Failed to fetch videos');
+      const data = await response.json();
+      setVideos(data);
+    } catch (error) {
+      message.error('Failed to load videos');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  const formatDuration = (duration: string) => {
+    // Duration comes in format "HH:MM:SS"
+    const parts = duration.split(':');
+    if (parts.length === 3) {
+      const [hours, minutes, seconds] = parts;
+      if (hours === '00') {
+        return `${minutes}:${seconds}`;
+      }
+    }
+    return duration;
+  };
 
   const columns: ColumnsType<VideoItem> = [
     {
       title: 'Thumbnail',
-      dataIndex: 'thumbnail',
+      dataIndex: 'thumbnail_url',
       key: 'thumbnail',
       render: (url: string) => <Image width={120} src={url} preview={false} />,
     },
@@ -48,11 +65,29 @@ const VideosPage: React.FC = () => {
       title: 'Duration',
       dataIndex: 'duration',
       key: 'duration',
+      render: (duration: string) => formatDuration(duration),
     },
     {
-      title: 'Resolution (WxH)',
-      dataIndex: 'resolution',
+      title: 'Resolution',
       key: 'resolution',
+      render: (record: VideoItem) => `${record.width}x${record.height}`,
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record: VideoItem) => (
+        <Space>
+          <Popconfirm
+            title="Delete video"
+            description="Are you sure you want to delete this video?"
+            onConfirm={() => handleDeleteVideo(record.video_id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button danger>Delete</Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
@@ -62,6 +97,21 @@ const VideosPage: React.FC = () => {
 
   const handleCloseModal = () => {
     setIsAddModalOpen(false);
+    fetchVideos(); // Refresh the video list after adding
+  };
+
+  const handleDeleteVideo = async (videoId: string) => {
+    try {
+      const response = await fetch(`/api/videos/${videoId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete video');
+      message.success('Video deleted successfully');
+      fetchVideos(); // Refresh the list after deletion
+    } catch (error) {
+      message.error('Failed to delete video');
+      console.error(error);
+    }
   };
 
   return (
@@ -71,7 +121,12 @@ const VideosPage: React.FC = () => {
           Add Video
         </Button>
       </Space>
-      <Table dataSource={dataSource} columns={columns} />
+      <Table 
+        dataSource={videos} 
+        columns={columns} 
+        loading={loading}
+        rowKey="video_id" 
+      />
       <AddVideoModal open={isAddModalOpen} onClose={handleCloseModal} />
     </div>
   );
