@@ -9,12 +9,22 @@ from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from ffmpy import FFmpeg
-from ninja import NinjaAPI, Schema, ModelSchema
+from typing import List
+from ninja import NinjaAPI, Schema, ModelSchema, Field
+from ninja.pagination import paginate, PageNumberPagination
 from openai import OpenAI
 
 from apps.models import YouTubeVideo, Subtitle, Settings
 
 api = NinjaAPI()
+
+
+class SubtitleSchema(ModelSchema):
+    class Config:
+        model = Subtitle
+        model_fields = ['id', 'language', 'is_transcribed', 'content', 'created', 'updated']
+
+    video_title: str = Field(..., alias='video.title')
 
 
 class SettingsSchema(ModelSchema):
@@ -158,6 +168,12 @@ def transcribe_video(request, video_id: str):
         content=srt_content)
 
     return {'success': True}
+
+
+@api.get("/subtitles", response=List[SubtitleSchema])
+@paginate(PageNumberPagination)
+def list_subtitles(request):
+    return Subtitle.objects.select_related('video').order_by('-id')
 
 
 @api.get("/settings", response=SettingsSchema)

@@ -1,33 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import EditSubtitleDrawer from './EditSubtitleDrawer';
 
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  items: T[];
+}
+
 interface SubtitleItem {
-  key: string;
-  name: string;
-  size: string;
+  id: number;
+  video_title: string;
+  language: string;
+  is_transcribed: boolean;
+  content: string;
+  created: string;
+  updated: string;
 }
 
 const SubtitlesPage: React.FC = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [editingItem, setEditingItem] = useState<SubtitleItem | null>(null);
 
-  const dataSource: SubtitleItem[] = [
-    { key: '1', name: 'Video1_en.srt', size: '2 KB' },
-    { key: '2', name: 'Video2_en.srt', size: '3 KB' },
-  ];
+  const [subtitles, setSubtitles] = useState<SubtitleItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const fetchSubtitles = async (page: number) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/subtitles?page=${page}&page_size=${pageSize}`);
+      const data: PaginatedResponse<SubtitleItem> = await response.json();
+      setSubtitles(data.items);
+      setTotal(data.count);
+    } catch (error) {
+      console.error('Failed to fetch subtitles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubtitles(currentPage);
+  }, [currentPage]);
 
   const columns: ColumnsType<SubtitleItem> = [
     {
-      title: 'File Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: 'Video Title',
+      dataIndex: 'video_title',
+      key: 'video_title',
     },
     {
-      title: 'Size',
-      dataIndex: 'size',
-      key: 'size',
+      title: 'Language',
+      dataIndex: 'language',
+      key: 'language',
+      render: (lang) => ({
+        en: 'English',
+        ko: 'Korean',
+        de: 'German'
+      }[lang] || lang),
+    },
+    {
+      title: 'Transcribed',
+      dataIndex: 'is_transcribed',
+      key: 'is_transcribed',
+      render: (value) => value ? 'Yes' : 'No',
+    },
+    {
+      title: 'Created',
+      dataIndex: 'created',
+      key: 'created',
+      render: (date) => new Date(date).toLocaleString(),
+    },
+    {
+      title: 'Updated',
+      dataIndex: 'updated',
+      key: 'updated',
+      render: (date) => new Date(date).toLocaleString(),
     },
     {
       title: 'Action',
@@ -52,7 +105,18 @@ const SubtitlesPage: React.FC = () => {
 
   return (
     <div>
-      <Table dataSource={dataSource} columns={columns} />
+      <Table
+        dataSource={subtitles}
+        columns={columns}
+        rowKey="id"
+        loading={loading}
+        pagination={{
+          total,
+          pageSize,
+          current: currentPage,
+          onChange: (page) => setCurrentPage(page),
+        }}
+      />
       <EditSubtitleDrawer
         open={openDrawer}
         item={editingItem}
