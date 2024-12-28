@@ -134,7 +134,7 @@ AWS_S3_OBJECT_PARAMETERS = {}
 class MediaStorage(S3Boto3Storage):
     location = 'media'
     default_acl = 'private'
-    file_overwrite = False
+    file_overwrite = True
 
     querystring_auth = True
     querystring_expire = 900
