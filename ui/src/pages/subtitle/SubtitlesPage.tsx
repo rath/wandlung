@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button } from 'antd';
+import { Table, Button, Space } from 'antd';
+import TranscribeVideoModal from './TranscribeVideoModal';
 import type { ColumnsType } from 'antd/es/table';
 import EditSubtitleDrawer from './EditSubtitleDrawer';
 
@@ -22,6 +23,7 @@ interface SubtitleItem {
 
 const SubtitlesPage: React.FC = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [transcribeModalOpen, setTranscribeModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<SubtitleItem | null>(null);
 
   const [subtitles, setSubtitles] = useState<SubtitleItem[]>([]);
@@ -106,6 +108,15 @@ const SubtitlesPage: React.FC = () => {
 
   return (
     <div>
+      <Space style={{ marginBottom: 16 }}>
+        <Button
+          type="primary"
+          onClick={() => setTranscribeModalOpen(true)}
+          icon={<span role="img" aria-label="audio">🎙️</span>}
+        >
+          Add by Transcribing
+        </Button>
+      </Space>
       <Table
         dataSource={subtitles}
         columns={columns}
@@ -122,6 +133,13 @@ const SubtitlesPage: React.FC = () => {
         open={openDrawer}
         item={editingItem}
         onClose={handleCloseDrawer}
+      />
+      <TranscribeVideoModal
+        open={transcribeModalOpen}
+        onClose={() => {
+          setTranscribeModalOpen(false);
+          fetchSubtitles(currentPage);
+        }}
       />
     </div>
   );
