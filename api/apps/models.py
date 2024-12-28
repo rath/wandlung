@@ -3,7 +3,7 @@ from django.db import models
 
 class YouTubeVideo(models.Model):
     video_id = models.CharField(max_length=20, unique=True)
-    thumbnail = models.ImageField(upload_to='thumbnails/', max_length=180)
+    thumbnail = models.ImageField(upload_to='thumbnails/')
     duration = models.DurationField()
     width = models.PositiveIntegerField()
     height = models.PositiveIntegerField()
