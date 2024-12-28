@@ -176,6 +176,21 @@ def list_subtitles(request):
     return Subtitle.objects.select_related('video').order_by('-id')
 
 
+class SubtitleUpdateSchema(Schema):
+    content: str
+
+
+@api.put("/subtitles/{subtitle_id}")
+def update_subtitle(request, subtitle_id: int, payload: SubtitleUpdateSchema):
+    try:
+        subtitle = Subtitle.objects.get(id=subtitle_id)
+        subtitle.content = payload.content
+        subtitle.save()
+        return {"success": True}
+    except Subtitle.DoesNotExist:
+        return api.create_response(request, {"detail": "Subtitle not found"}, status=404)
+
+
 @api.get("/settings", response=SettingsSchema)
 def get_settings(request):
     settings = Settings.objects.first()

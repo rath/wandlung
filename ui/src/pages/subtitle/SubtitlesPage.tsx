@@ -101,6 +101,7 @@ const SubtitlesPage: React.FC = () => {
   const handleCloseDrawer = () => {
     setOpenDrawer(false);
     setEditingItem(null);
+    fetchSubtitles(currentPage); // Refresh the list
   };
 
   return (

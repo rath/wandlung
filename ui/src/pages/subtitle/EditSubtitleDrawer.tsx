@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Drawer, Input, Button } from 'antd';
 
 interface SubtitleItem {
-  key: string;
-  name: string;
-  size: string;
+  id: number;
+  video_title: string;
+  language: string;
+  is_transcribed: boolean;
+  content: string;
+  created: string;
+  updated: string;
 }
 
 interface EditSubtitleDrawerProps {
@@ -24,20 +28,35 @@ const EditSubtitleDrawer: React.FC<EditSubtitleDrawerProps> = ({
 
   useEffect(() => {
     if (item) {
-      // In a real app, fetch the SRT content from server or store
-      setText(`Sample SRT content for ${item.name}`);
+      setText(item.content);
     }
   }, [item]);
 
-  const handleSave = () => {
-    // Save the updated subtitle text
-    console.log('Updated SRT Content:', text);
-    onClose();
+  const handleSave = async () => {
+    if (!item) return;
+
+    try {
+      const response = await fetch(`/api/subtitles/${item.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update subtitle');
+      }
+
+      onClose();
+    } catch (error) {
+      console.error('Error updating subtitle:', error);
+    }
   };
 
   return (
     <Drawer
-      title={`Edit Subtitle: ${item?.name || ''}`}
+      title={`Edit Subtitle: ${item?.video_title || ''}`}
       placement="right"
       onClose={onClose}
       open={open}
