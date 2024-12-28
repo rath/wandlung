@@ -14,4 +14,5 @@ dependencies = [
     "django-extensions>=3.2.3",
     "yt-dlp>=2024.12.23",
     "ffmpy>=0.5.0",
+    "openai>=1.58.1",
 ]
