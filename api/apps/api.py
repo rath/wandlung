@@ -80,6 +80,7 @@ def download_video(request, payload: VideoDownloadRequest):
     # Clean up
     os.remove(thumbnail_path)
     os.remove(audio_path)
+    os.remove(video_path)
     return {'video_id': video.video_id}
 
 
@@ -104,6 +105,17 @@ def delete_video(request, video_id: str):
     try:
         video = YouTubeVideo.objects.get(video_id=video_id)
         video.delete()
+        return {'success': True}
+    except YouTubeVideo.DoesNotExist:
+        return api.create_response(request, {'detail': 'Video not found'}, status=404)
+
+
+@api.post('/videos/{video_id}/transcribe')
+def transcribe_video(request, video_id: str):
+    try:
+        video = YouTubeVideo.objects.get(video_id=video_id)
+        # Call transcription API here
+
         return {'success': True}
     except YouTubeVideo.DoesNotExist:
         return api.create_response(request, {'detail': 'Video not found'}, status=404)

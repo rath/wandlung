@@ -28,6 +28,20 @@ class YouTubeVideo(models.Model):
         return MediaStorage().url(self.thumbnail.name)
 
 
+class Subtitle(models.Model):
+    class Meta:
+        verbose_name = 'Subtitle'
+        verbose_name_plural = 'Subtitles'
+        unique_together = ('video', 'language',)
+
+    video = models.ForeignKey(YouTubeVideo, on_delete=models.CASCADE, related_name='subtitles')
+    language = models.CharField(max_length=2, choices=[('en', 'English'), ('ko', 'Korean'), ('de', 'German')])
+    is_transcribed = models.BooleanField(default=True)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+
 VIDEO_HEIGHT_CHOICES = [
     (240, '240p'),
     (360, '360p'),
