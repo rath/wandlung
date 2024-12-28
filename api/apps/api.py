@@ -67,7 +67,7 @@ def list_videos(request):
         video_list.append({
             'video_id': video.video_id,
             'thumbnail_url': video.signed_thumbnail_url(),
-            'duration': video.duration,
+            'duration': video.duration.total_seconds(),
             'width': video.width,
             'height': video.height,
             'title': video.title,

@@ -37,16 +37,17 @@ const VideosPage: React.FC = () => {
     fetchVideos();
   }, []);
 
-  const formatDuration = (duration: string) => {
-    // Duration comes in format "HH:MM:SS"
-    const parts = duration.split(':');
-    if (parts.length === 3) {
-      const [hours, minutes, seconds] = parts;
-      if (hours === '00') {
-        return `${minutes}:${seconds}`;
-      }
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    if (hours > 0) {
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2,
+          '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     }
-    return duration;
+    return `${String(minutes).padStart(2,
+        '0')}:${String(remainingSeconds).padStart(2, '0')}`;
   };
 
   const columns: ColumnsType<VideoItem> = [
@@ -65,7 +66,7 @@ const VideosPage: React.FC = () => {
       title: 'Duration',
       dataIndex: 'duration',
       key: 'duration',
-      render: (duration: string) => formatDuration(duration),
+      render: (duration: number) => formatDuration(duration),
     },
     {
       title: 'Resolution',
