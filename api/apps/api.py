@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 import yt_dlp
 from PIL import Image
 from django.core.files import File
+from django.urls import reverse
 from ninja import NinjaAPI, Schema
 
 from apps.models import YouTubeVideo
@@ -58,6 +59,20 @@ def download_video(request, payload: VideoDownloadRequest):
     return {'video_id': video.video_id}
 
 
-def ping(request):
-    return {'message': 'pong'}
+@api.get('/videos')
+def list_videos(request):
+    videos = YouTubeVideo.objects.all().order_by('-id')
+    video_list = []
+    for video in videos:
+        # Prepare thumbnail_url using S3 with security token
+        thumbnail_url = reverse('thumbnail', args=[video.video_id])
+        video_list.append({
+            'video_id': video.video_id,
+            'thumbnail_url': thumbnail_url,
+            'duration': video.duration,
+            'width': video.width,
+            'height': video.height,
+            'title': video.title,
+        })
+    return video_list
 

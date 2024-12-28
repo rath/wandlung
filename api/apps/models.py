@@ -1,5 +1,7 @@
 from django.db import models
 
+from wandlung.storages import MediaStorage
+
 
 class YouTubeVideo(models.Model):
     video_id = models.CharField(max_length=20, unique=True)
@@ -12,4 +14,10 @@ class YouTubeVideo(models.Model):
 
     def __str__(self):
         return self.title
+
+    def signed_thumbnail_url(self):
+        if not self.thumbnail:
+            return None
+
+        return MediaStorage().url(self.thumbnail.name)
 
