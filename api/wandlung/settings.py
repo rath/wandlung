@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from decouple import config
 
-from storages.backends.s3boto3 import S3Boto3Storage
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -130,29 +128,12 @@ AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = config('AWS_REGION_NAME', default='us-east-1')
 AWS_S3_OBJECT_PARAMETERS = {}
 
-
-class MediaStorage(S3Boto3Storage):
-    location = 'media'
-    default_acl = 'private'
-    file_overwrite = True
-
-    querystring_auth = True
-    querystring_expire = 900
-    signature_version = 's3v4'
-
-
-class StaticStorage(S3Boto3Storage):
-    location = 'static'
-    default_acl = 'public-read'
-    file_overwrite = True
-
-
 STORAGES = {
     'default': {
-        'BACKEND': 'wandlung.settings.MediaStorage',
+        'BACKEND': 'wandlung.storages.MediaStorage',
     },
     'staticfiles': {
-        'BACKEND': 'wandlung.settings.StaticStorage',
+        'BACKEND': 'wandlung.storages.StaticStorage',
     }
 }
 
