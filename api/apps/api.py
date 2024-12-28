@@ -3,6 +3,7 @@ import os
 import urllib.request
 from tempfile import NamedTemporaryFile
 
+from django.core.exceptions import ValidationError
 import yt_dlp
 from PIL import Image
 from django.core.files import File
@@ -25,9 +26,13 @@ class VideoDownloadRequest(Schema):
 
 @api.post('/videos/download')
 def download_video(request, payload: VideoDownloadRequest):
+    settings = Settings.objects.first()
+    if not settings:
+        raise ValidationError('Settings not found')
+
     url = payload.url
     ydl_opts = {
-        'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
+        'format': f"bestvideo[height<={settings.max_video_height}]+bestaudio/best[height<={settings.max_video_height}]/best",
         'merge_output_format': 'mp4',
         'outtmpl': 'videos/%(id)s.%(ext)s',
     }
