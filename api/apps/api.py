@@ -7,12 +7,17 @@ import yt_dlp
 from PIL import Image
 from django.core.files import File
 from django.urls import reverse
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI, Schema, ModelSchema
 
-from apps.models import YouTubeVideo
+from apps.models import YouTubeVideo, Settings
 
 api = NinjaAPI()
 
+
+class SettingsSchema(ModelSchema):
+    class Config:
+        model = Settings
+        model_fields = ['openai_api_key', 'anthropic_api_key', 'max_video_height', 'use_he_aac_v2']
 
 class VideoDownloadRequest(Schema):
     url: str
@@ -83,4 +88,24 @@ def delete_video(request, video_id: str):
         return {'success': True}
     except YouTubeVideo.DoesNotExist:
         return api.create_response(request, {'detail': 'Video not found'}, status=404)
+
+
+@api.get("/settings")
+def get_settings(request):
+    settings = Settings.objects.first()
+    if not settings:
+        settings = Settings.objects.create()
+    return settings
+
+
+@api.post("/settings")
+def update_settings(request, payload: SettingsSchema):
+    settings = Settings.objects.first()
+    if not settings:
+        settings = Settings.objects.create()
+    
+    for attr, value in payload.dict().items():
+        setattr(settings, attr, value)
+    settings.save()
+    return settings
 
