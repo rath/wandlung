@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Input, Progress, Button } from 'antd';
+import { Modal, Input, Spin, Button } from 'antd';
 
 interface AddVideoModalProps {
   open: boolean;
@@ -8,22 +8,26 @@ interface AddVideoModalProps {
 
 const AddVideoModal: React.FC<AddVideoModalProps> = ({ open, onClose }) => {
   const [youtubeUrl, setYoutubeUrl] = useState('');
-  const [progress, setProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     setIsDownloading(true);
-    let currentProgress = 0;
 
-    // Simulate a download process
-    const interval = setInterval(() => {
-      currentProgress += 10;
-      setProgress(currentProgress);
-      if (currentProgress >= 100) {
-        clearInterval(interval);
-        setIsDownloading(false);
-      }
-    }, 500);
+    try {
+      const response = await fetch('/api/videos/download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: youtubeUrl }),
+      });
+      // TODO: Close this modal reload parent VideosPage.
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -40,8 +44,8 @@ const AddVideoModal: React.FC<AddVideoModalProps> = ({ open, onClose }) => {
         onChange={(e) => setYoutubeUrl(e.target.value)}
       />
       {isDownloading ? (
-        <div style={{ marginTop: 16 }}>
-          <Progress percent={progress} />
+        <div style={{ marginTop: 16, textAlign: 'center' }}>
+          <Spin />
         </div>
       ) : (
         <Button
