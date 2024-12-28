@@ -64,11 +64,9 @@ def list_videos(request):
     videos = YouTubeVideo.objects.all().order_by('-id')
     video_list = []
     for video in videos:
-        # Prepare thumbnail_url using S3 with security token
-        thumbnail_url = reverse('thumbnail', args=[video.video_id])
         video_list.append({
             'video_id': video.video_id,
-            'thumbnail_url': thumbnail_url,
+            'thumbnail_url': video.signed_thumbnail_url(),
             'duration': video.duration,
             'width': video.width,
             'height': video.height,
