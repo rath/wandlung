@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Space } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, TranslationOutlined } from '@ant-design/icons';
 import TranscribeVideoModal from './TranscribeVideoModal';
 import type { ColumnsType } from 'antd/es/table';
 import EditSubtitleDrawer from './EditSubtitleDrawer';
@@ -88,14 +88,23 @@ const SubtitlesPage: React.FC = () => {
     {
       title: 'Action',
       render: (_, record) => (
-        <Button
-          type="link"
-          icon={<EditOutlined />}
-          onClick={() => {
-            setEditingItem(record);
-            setOpenDrawer(true);
-          }}
-        />
+        <Space>
+          <Button
+            type="link"
+            icon={<EditOutlined />}
+            onClick={() => {
+              setEditingItem(record);
+              setOpenDrawer(true);
+            }}
+          />
+          {record.is_transcribed && (
+            <Button
+              type="link"
+              icon={<TranslationOutlined />}
+              onClick={() => {}}
+            />
+          )}
+        </Space>
       ),
     },
   ];
