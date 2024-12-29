@@ -21,8 +21,8 @@ def _translate_subtitle_anthropic(source: Subtitle, target_language: str) -> str
         "Translate only 10 entries at a time and say 'NEXT'. "
         "If I reply with 'CONTINUE', then continue with the next 10 entries. "
         "If you've finished the job, then say 'END'. "
-        "Output should be in JSON format with keys: 'text', 'command'. "
-        "Example: {'text': 'Translated SRT (must escape newlines)', 'command': 'NEXT'} "
+        'Output should be in JSON format with keys: "text", "command". '
+        'Example: {"text": "Translated SRT (must escape newlines)", "command": "NEXT"}'
     )
 
     histories = [{"role": "user", "content": source.content},]
@@ -44,7 +44,11 @@ def _translate_subtitle_anthropic(source: Subtitle, target_language: str) -> str
             messages=histories,
         )
         message = response.content[0].text
-        data = orjson.loads(message)
+        try:
+            data = orjson.loads(message)
+        except orjson.JSONDecodeError as e:
+            print(f"Failed to decode JSON: ##{message}##")
+            raise e
 
         translated_chunks.append(data['text'].strip())
         if data['command'] == 'NEXT':
