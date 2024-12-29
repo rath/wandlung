@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, Select, Switch, Button, message } from 'antd';
 
 const SettingsPage: React.FC = () => {

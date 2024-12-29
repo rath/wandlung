@@ -1,50 +1,66 @@
-# React + TypeScript + Vite
+<p align="center">
+  <img src="ui/public/web-app-manifest-512x512.png" alt="Wandlung Logo" width="320" height="320">
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Wandlung UI
 
-Currently, two official plugins are available:
+A modern React application for managing YouTube video downloads, transcriptions, and subtitle translations.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+### 📺 Videos Page
+- Download YouTube videos with a simple URL input
+- View video thumbnails, duration, and resolution
+- Manage your video collection with easy deletion
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### 📝 Subtitles Page
+- Transcribe videos to create subtitles
+- Edit subtitle content in a user-friendly interface
+- Translate subtitles to different languages
+- Preview videos with subtitles
+- Burn subtitles directly into videos
 
-- Configure the top-level `parserOptions` property like this:
+### ⚙️ Settings Page
+- Configure OpenAI API key for transcription
+- Set up Anthropic API key for translations
+- Adjust video download quality preferences
+- Toggle audio codec settings
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Tech Stack
+
+- React 18 with TypeScript
+- Vite for blazing fast development
+- Ant Design for beautiful UI components
+- React Router for seamless navigation
+- ESLint for code quality
+
+## Getting Started
+
+1. Install dependencies:
+```bash
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+2. Start development server:
+```bash
+npm run dev
 ```
+
+3. Build for production:
+```bash
+npm run build
+```
+
+## Code Quality
+
+ESLint is configured with TypeScript support and React-specific rules. Run linting with:
+```bash
+npm run lint
+```
+
+## Layout
+
+The app uses a clean, modern layout with:
+- Responsive header with navigation
+- Consistent content width and padding
+- Mobile-friendly design
