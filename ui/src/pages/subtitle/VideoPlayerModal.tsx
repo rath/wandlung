@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Modal } from 'antd';
 
 interface VideoInfo {
@@ -20,6 +20,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   onClose,
 }) => {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const fetchVideoInfo = async () => {
@@ -45,12 +46,19 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
     <Modal
       title={videoInfo?.title || 'Video Player'}
       open={open}
-      onCancel={onClose}
+      onCancel={() => {
+        if (videoRef.current) {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+        }
+        onClose();
+      }}
       footer={null}
       width={800}
     >
       {videoInfo && (
         <video
+          ref={videoRef}
           controls
           style={{ width: '100%' }}
           key={videoInfo.video_url} // Force reload when URL changes
