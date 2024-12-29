@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Menu } from 'antd';
 import {
   VideoCameraOutlined,
@@ -8,7 +8,7 @@ import {
 import type { MenuProps } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const SideMenu: React.FC = () => {
+const HeaderMenu: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,17 +16,14 @@ const SideMenu: React.FC = () => {
     {
       key: '/videos',
       icon: <VideoCameraOutlined />,
-      label: 'Videos',
     },
     {
       key: '/subtitles',
       icon: <FileTextOutlined />,
-      label: 'Subtitles',
     },
     {
       key: '/settings',
       icon: <SettingOutlined />,
-      label: 'Settings',
     },
   ];
 
@@ -36,14 +33,18 @@ const SideMenu: React.FC = () => {
 
   return (
     <Menu
-      mode="inline"
-      style={{ height: '100%', borderRight: 0 }}
+      mode="horizontal"
       selectedKeys={[location.pathname]}
       onClick={handleClick}
       items={items}
+      style={{ 
+        minWidth: '120px',
+        border: 'none',
+        justifyContent: 'flex-end'
+      }}
     />
   );
 };
 
-export default SideMenu;
+export default HeaderMenu;
 

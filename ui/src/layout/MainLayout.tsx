@@ -1,9 +1,7 @@
 import React from 'react';
 import { Layout } from 'antd';
 import { Content, Header } from 'antd/es/layout/layout';
-import SideMenu from './SideMenu';
-
-const { Sider } = Layout;
+import HeaderMenu from './HeaderMenu';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -12,20 +10,28 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        width={200}
-        style={{
-          background: '#fff',
-          borderRight: '1px solid #f0f0f0',
+      <Header 
+        style={{ 
+          background: '#fff', 
+          padding: '0 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          boxShadow: '0 2px 8px #f0f1f2'
         }}
       >
-        <SideMenu />
-      </Sider>
-      <Layout>
-        <Header style={{ background: '#fff', padding: '0 16px' }}>
-          <h2 style={{ margin: 0 }}>Wandlung</h2>
-        </Header>
-        <Content style={{ margin: '16px' }}>
+        <h2 style={{ margin: 0 }}>Wandlung</h2>
+        <HeaderMenu />
+      </Header>
+      <Content>
+        <div style={{ 
+          maxWidth: '1280px', 
+          margin: '16px auto',
+          padding: '0 16px',
+        }}>
           <div
             style={{
               background: '#fff',
@@ -35,8 +41,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           >
             {children}
           </div>
-        </Content>
-      </Layout>
+        </div>
+      </Content>
     </Layout>
   );
 };
