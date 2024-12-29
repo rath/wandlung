@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="ui/public/web-app-manifest-512x512.png" alt="Wandlung Logo" width="320" height="320">
+  <img src="../ui/public/web-app-manifest-512x512.png" alt="Wandlung Logo" width="320" height="320">
 </p>
 
 # Wandlung API
