@@ -27,6 +27,12 @@ class YouTubeVideo(models.Model):
 
         return MediaStorage().url(self.thumbnail.name)
 
+    def signed_video_url(self):
+        if not self.original_video:
+            return None
+
+        return MediaStorage().url(self.original_video.name)
+
 
 class Subtitle(models.Model):
     class Meta:

@@ -28,6 +28,7 @@ class SubtitleSchema(ModelSchema):
         model = Subtitle
         model_fields = ['id', 'language', 'is_transcribed', 'content', 'created', 'updated']
 
+    video_id: str = Field(..., alias='video.video_id')
     video_title: str = Field(..., alias='video.title')
 
 
@@ -127,6 +128,20 @@ def list_recent_videos(request):
             'duration': video.duration.total_seconds(),
         })
     return video_list
+
+
+@api.get('/videos/{video_id}')
+def get_video(request, video_id: str):
+    video = get_object_or_404(YouTubeVideo, video_id=video_id)
+    return {
+        'video_id': video.video_id,
+        'thumbnail_url': video.signed_thumbnail_url(),
+        'video_url': video.signed_video_url(),
+        'duration': video.duration.total_seconds(),
+        'width': video.width,
+        'height': video.height,
+        'title': video.title,
+    }
 
 
 @api.delete('/videos/{video_id}')

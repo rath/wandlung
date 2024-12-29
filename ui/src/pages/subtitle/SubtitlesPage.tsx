@@ -15,6 +15,7 @@ interface PaginatedResponse<T> {
 
 interface SubtitleItem {
   id: number;
+  video_id: string;
   video_title: string;
   language: string;
   is_transcribed: boolean;
@@ -59,6 +60,11 @@ const SubtitlesPage: React.FC = () => {
       title: 'Video Title',
       dataIndex: 'video_title',
       key: 'video_title',
+    },
+    {
+      title: 'Video Id',
+      dataIndex: 'video_id',
+      key: 'video_id',
     },
     {
       title: 'Language',
