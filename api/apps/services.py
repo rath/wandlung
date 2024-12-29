@@ -1,5 +1,4 @@
-import json
-
+import orjson
 import anthropic
 from django.core.exceptions import ValidationError
 
@@ -45,7 +44,7 @@ def _translate_subtitle_anthropic(source: Subtitle, target_language: str) -> str
             messages=histories,
         )
         message = response.content[0].text
-        data = json.loads(message)
+        data = orjson.loads(message)
 
         translated_chunks.append(data['text'].strip())
         if data['command'] == 'NEXT':

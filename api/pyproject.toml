@@ -16,4 +16,5 @@ dependencies = [
     "ffmpy>=0.5.0",
     "openai>=1.58.1",
     "anthropic>=0.42.0",
+    "orjson>=3.10.12",
 ]

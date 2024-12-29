@@ -12,7 +12,22 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from ffmpy import FFmpeg
 from typing import List, Optional
-from ninja import NinjaAPI, Schema, ModelSchema, Field
+from ninja import Schema, ModelSchema, Field
+from ninja.parser import Parser
+from ninja.renderers import BaseRenderer
+import orjson
+from ninja import NinjaAPI
+
+class ORJSONParser(Parser):
+    def parse_body(self, request):
+        return orjson.loads(request.body)
+
+class ORJSONRenderer(BaseRenderer):
+    media_type = "application/json"
+    def render(self, request, data, *args, **kwargs):
+        return orjson.dumps(data)
+
+api = NinjaAPI(parser=ORJSONParser(), renderer=ORJSONRenderer())
 from ninja.pagination import paginate, PageNumberPagination
 from openai import OpenAI
 
