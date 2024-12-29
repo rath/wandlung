@@ -9,8 +9,6 @@ Wandlung is a monorepo project that allows users to download YouTube videos, ext
 1. A backend built with Django Ninja 1.3 and Python 3
 2. A frontend built with React and Ant Design
 
-**Note**: Certain parts of the implementation (e.g., Claude Sonnet API, OpenAI Whisper API integration, AWS S3 uploads) include TODO placeholders, as they can be customized depending on your credentials and service configurations.
-
 ## Features
 
 - **YouTube Video Download**  
@@ -23,7 +21,7 @@ Wandlung is a monorepo project that allows users to download YouTube videos, ext
   Integrates with **OpenAI Whisper** (hosted API) to generate SRT subtitles.  
 
 - **Subtitle Translation**  
-  Uses **Claude Sonnet** API for subtitle translation, splitting large subtitle files into manageable chunks (e.g., 50 lines per request, including the last 20 lines for context).  
+  Uses **Claude Sonnet** API for subtitle translation, splitting large subtitle files into manageable chunks.
 
 - **Subtitle Editing**  
   Provides a React-based UI for manually editing subtitles (including timestamps).  
@@ -42,9 +40,4 @@ Wandlung is a monorepo project that allows users to download YouTube videos, ext
 - **Amazon S3** credentials for storing media files  
 - **OpenAI API** key  
 - **Claude API** key
-- **Docker**
-
-## To-Do / Future Improvements
-
-- [ ] **Authentication**: Add user management, if needed.
 
