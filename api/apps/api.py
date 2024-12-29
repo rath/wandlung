@@ -8,6 +8,8 @@ from PIL import Image
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.core.files import File
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from ffmpy import FFmpeg
 from typing import List, Optional
 from ninja import NinjaAPI, Schema, ModelSchema, Field
@@ -16,6 +18,7 @@ from openai import OpenAI
 
 from apps.models import YouTubeVideo, Subtitle, Settings
 from apps.services import translate_subtitle_content
+from apps.utils import srt_to_webvtt
 
 api = NinjaAPI()
 
@@ -175,6 +178,13 @@ def transcribe_video(request, video_id: str):
 @paginate(PageNumberPagination)
 def list_subtitles(request):
     return Subtitle.objects.select_related('video').order_by('-id')
+
+
+@api.get('/subtitles/{subtitle_id}.vtt')
+def get_subtitle_as_webvtt(request, subtitle_id: int):
+    subtitle = get_object_or_404(Subtitle, pk=subtitle_id)
+    content = srt_to_webvtt(subtitle.content)
+    return HttpResponse(content, content_type='text/vtt')
 
 
 class SubtitleUpdateSchema(Schema):
