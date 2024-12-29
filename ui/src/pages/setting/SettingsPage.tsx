@@ -65,7 +65,7 @@ const SettingsPage: React.FC = () => {
         name="openAiKey"
         rules={[{ required: true, message: 'To transcribe by Whisper' }]}
       >
-        <Input placeholder="sk-proj-..." />
+        <Input.Password placeholder="sk-proj-..." />
       </Form.Item>
 
       <Form.Item
@@ -73,7 +73,7 @@ const SettingsPage: React.FC = () => {
         name="anthropicKey"
         rules={[{ required: true, message: 'To translate subtitles' }]}
       >
-        <Input placeholder="sk-ant-..." />
+        <Input.Password placeholder="sk-ant-..." />
       </Form.Item>
 
       <Form.Item
