@@ -7,7 +7,7 @@ class MediaStorage(S3Boto3Storage):
     file_overwrite = True
 
     querystring_auth = True
-    querystring_expire = 300
+    querystring_expire = 900
     signature_version = 's3v4'
 
 
