@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="ui/public/web-app-manifest-192x192.png" alt="Wandlung Logo" width="192" height="192">
+</p>
+
 # Wandlung
 
 Wandlung is a monorepo project that allows users to download YouTube videos, extract audio, generate subtitles via OpenAI Whisper, translate them using Claude Sonnet, edit the subtitles, and then embed the final subtitles back into the video using ffmpeg. The project consists of:
