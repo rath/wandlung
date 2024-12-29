@@ -1,4 +1,4 @@
-import re
+import json
 
 import anthropic
 from django.core.exceptions import ValidationError
@@ -21,13 +21,12 @@ def _translate_subtitle_anthropic(source: Subtitle, target_language: str) -> str
         f"Translate the following SRT subtitles into {target_language}. "
         "Translate only 10 entries at a time and say 'NEXT'. "
         "If I reply with 'CONTINUE', then continue with the next 10 entries. "
-        "If you've done your job, then say 'END'."
+        "If you've finished the job, then say 'END'. "
+        "Output should be in JSON format with keys: 'text', 'command'. "
+        "Example: {'text': 'Translated SRT (must escape newlines)', 'command': 'NEXT'} "
     )
 
-    conversation_history = [
-        {"role": "user", "content": ''.join(system_prompt)},
-        {"role": "user", "content": source.content},
-    ]
+    histories = [{"role": "user", "content": source.content},]
 
     client = anthropic.Client(api_key=settings.anthropic_api_key)
 
@@ -40,25 +39,23 @@ def _translate_subtitle_anthropic(source: Subtitle, target_language: str) -> str
 
         response = client.messages.create(
             model='claude-3-5-sonnet-20241022',
+            system=system_prompt,
             max_tokens=4096,
             temperature=0.4,
-            messages=conversation_history,
+            messages=histories,
         )
         message = response.content[0].text
+        data = json.loads(message)
 
-        partial_translation = re.sub(r"\bNEXT\b|\bEND\b", "", message).strip()
-        if partial_translation:
-            translated_chunks.append(partial_translation)
-
-        if "END" in message:
+        translated_chunks.append(data['text'].strip())
+        if data['command'] == 'NEXT':
+            histories.extend([
+                {'role': 'assistant', 'content': message},
+                {'role': 'user', 'content': 'CONTINUE'}])
+        elif data['command'] =='END':
             break
-
-        if "NEXT" in message:
-            conversation_history.append({"role": "assistant", "content": message})
-            conversation_history.append({"role": "user", "content": "CONTINUE"})
         else:
-            # FIXME: Abnormal case
-            break
+            raise ValueError(f"Unsupported command: {data['command']}")
 
     return "\n\n".join(translated_chunks)
 
