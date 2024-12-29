@@ -9,7 +9,7 @@ from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from ffmpy import FFmpeg
-from typing import List
+from typing import List, Optional
 from ninja import NinjaAPI, Schema, ModelSchema, Field
 from ninja.pagination import paginate, PageNumberPagination
 from openai import OpenAI
@@ -189,6 +189,29 @@ def update_subtitle(request, subtitle_id: int, payload: SubtitleUpdateSchema):
         return {"success": True}
     except Subtitle.DoesNotExist:
         return api.create_response(request, {"detail": "Subtitle not found"}, status=404)
+
+
+class TranslationRequest(Schema):
+    target_language: str
+    system_prompt: Optional[str] = None
+
+
+@api.post("/subtitles/{subtitle_id}/translate")
+def translate_subtitle(request, subtitle_id: int, payload: TranslationRequest):
+    settings = Settings.objects.first()
+    if not settings:
+        raise ValidationError('Settings not found')
+    if not settings.openai_api_key:
+        raise ValidationError('OpenAI API Key not set')
+
+    try:
+        source = Subtitle.objects.get(id=subtitle_id)
+        # TODO: Implement translation for source.content using OpenAI API
+        return {"success": True}
+    except Subtitle.DoesNotExist:
+        return api.create_response(request, {"detail": "Subtitle not found"}, status=404)
+
+    return {"success": True}
 
 
 @api.get("/settings", response=SettingsSchema)

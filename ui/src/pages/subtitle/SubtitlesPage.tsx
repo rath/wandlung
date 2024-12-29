@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Space } from 'antd';
 import { EditOutlined, TranslationOutlined } from '@ant-design/icons';
 import TranscribeVideoModal from './TranscribeVideoModal';
+import TranslateSubtitleModal from './TranslateSubtitleModal';
 import type { ColumnsType } from 'antd/es/table';
 import EditSubtitleDrawer from './EditSubtitleDrawer';
 
@@ -26,6 +27,8 @@ const SubtitlesPage: React.FC = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const [transcribeModalOpen, setTranscribeModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<SubtitleItem | null>(null);
+  const [translateModalOpen, setTranslateModalOpen] = useState(false);
+  const [translatingItem, setTranslatingItem] = useState<SubtitleItem | null>(null);
 
   const [subtitles, setSubtitles] = useState<SubtitleItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -96,7 +99,10 @@ const SubtitlesPage: React.FC = () => {
             <Button
               type="link"
               icon={<TranslationOutlined />}
-              onClick={() => {}}
+              onClick={() => {
+                setTranslatingItem(record);
+                setTranslateModalOpen(true);
+              }}
             />
           )}
         </Space>
@@ -142,6 +148,15 @@ const SubtitlesPage: React.FC = () => {
         open={transcribeModalOpen}
         onClose={() => {
           setTranscribeModalOpen(false);
+          fetchSubtitles(currentPage);
+        }}
+      />
+      <TranslateSubtitleModal
+        open={translateModalOpen}
+        subtitleId={translatingItem?.id ?? null}
+        onClose={() => {
+          setTranslateModalOpen(false);
+          setTranslatingItem(null);
           fetchSubtitles(currentPage);
         }}
       />
