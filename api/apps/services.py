@@ -18,8 +18,8 @@ def _translate_subtitle_anthropic(source: Subtitle, target_language: str) -> str
 
     system_prompt = (
         f"Translate the following SRT subtitles into {target_language}. "
-        "Translate only 10 entries at a time and say 'NEXT'. "
-        "If I reply with 'CONTINUE', then continue with the next 10 entries. "
+        "Translate only 20 entries at a time and say 'NEXT'. "
+        "If I reply with 'CONTINUE', then continue with the next 20 entries. "
         "If you've finished the job, then say 'END'. "
         'Output should be in JSON format with keys: "text", "command". '
         'Example: {"text": "Translated SRT (must escape newlines)", "command": "NEXT"}'
