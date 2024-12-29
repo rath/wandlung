@@ -32,7 +32,6 @@ class Subtitle(models.Model):
     class Meta:
         verbose_name = 'Subtitle'
         verbose_name_plural = 'Subtitles'
-        unique_together = ('video', 'language',)
 
     video = models.ForeignKey(YouTubeVideo, on_delete=models.CASCADE, related_name='subtitles')
     language = models.CharField(max_length=32)
