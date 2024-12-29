@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Space } from 'antd';
-import { EditOutlined, TranslationOutlined } from '@ant-design/icons';
+import { EditOutlined, TranslationOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import TranscribeVideoModal from './TranscribeVideoModal';
 import TranslateSubtitleModal from './TranslateSubtitleModal';
 import type { ColumnsType } from 'antd/es/table';
 import EditSubtitleDrawer from './EditSubtitleDrawer';
+import VideoPlayerModal from './VideoPlayerModal';
 
 interface PaginatedResponse<T> {
   count: number;
@@ -30,6 +31,8 @@ const SubtitlesPage: React.FC = () => {
   const [editingItem, setEditingItem] = useState<SubtitleItem | null>(null);
   const [translateModalOpen, setTranslateModalOpen] = useState(false);
   const [translatingItem, setTranslatingItem] = useState<SubtitleItem | null>(null);
+  const [videoPlayerOpen, setVideoPlayerOpen] = useState(false);
+  const [playingItem, setPlayingItem] = useState<SubtitleItem | null>(null);
 
   const [subtitles, setSubtitles] = useState<SubtitleItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -93,14 +96,24 @@ const SubtitlesPage: React.FC = () => {
       title: 'Action',
       render: (_, record) => (
         <Space>
-          <Button
-            type="link"
-            icon={<EditOutlined />}
-            onClick={() => {
-              setEditingItem(record);
-              setOpenDrawer(true);
-            }}
-          />
+          <Space>
+            <Button
+              type="link"
+              icon={<PlayCircleOutlined />}
+              onClick={() => {
+                setPlayingItem(record);
+                setVideoPlayerOpen(true);
+              }}
+            />
+            <Button
+              type="link"
+              icon={<EditOutlined />}
+              onClick={() => {
+                setEditingItem(record);
+                setOpenDrawer(true);
+              }}
+            />
+          </Space>
           {record.is_transcribed && (
             <Button
               type="link"
@@ -164,6 +177,15 @@ const SubtitlesPage: React.FC = () => {
           setTranslateModalOpen(false);
           setTranslatingItem(null);
           fetchSubtitles(currentPage);
+        }}
+      />
+      <VideoPlayerModal
+        open={videoPlayerOpen}
+        videoId={playingItem?.video_id ?? null}
+        subtitleId={playingItem?.id ?? null}
+        onClose={() => {
+          setVideoPlayerOpen(false);
+          setPlayingItem(null);
         }}
       />
     </div>
