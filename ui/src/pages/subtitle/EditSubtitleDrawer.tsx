@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, Input, Button } from 'antd';
+import { Drawer, Input, Button, Popconfirm } from 'antd';
 
 interface SubtitleItem {
   id: number;
@@ -31,6 +31,24 @@ const EditSubtitleDrawer: React.FC<EditSubtitleDrawerProps> = ({
       setText(item.content);
     }
   }, [item]);
+
+  const handleDelete = async () => {
+    if (!item) return;
+
+    try {
+      const response = await fetch(`/api/subtitles/${item.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete subtitle');
+      }
+
+      onClose();
+    } catch (error) {
+      console.error('Error deleting subtitle:', error);
+    }
+  };
 
   const handleSave = async () => {
     if (!item) return;
@@ -67,9 +85,20 @@ const EditSubtitleDrawer: React.FC<EditSubtitleDrawerProps> = ({
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      <Button type="primary" style={{ marginTop: 16 }} onClick={handleSave}>
-        Save
-      </Button>
+      <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between' }}>
+        <Popconfirm
+          title="Delete subtitle"
+          description="Are you sure you want to delete this subtitle?"
+          onConfirm={handleDelete}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button danger>Delete</Button>
+        </Popconfirm>
+        <Button type="primary" onClick={handleSave}>
+          Save
+        </Button>
+      </div>
     </Drawer>
   );
 };

@@ -220,6 +220,16 @@ def translate_subtitle(request, subtitle_id: int, payload: TranslationRequest):
         return api.create_response(request, {"detail": "Subtitle not found"}, status=404)
 
 
+@api.delete("/subtitles/{subtitle_id}")
+def delete_subtitle(request, subtitle_id: int):
+    try:
+        subtitle = Subtitle.objects.get(id=subtitle_id)
+        subtitle.delete()
+        return {"success": True}
+    except Subtitle.DoesNotExist:
+        return api.create_response(request, {"detail": "Subtitle not found"}, status=404)
+
+
 @api.get("/settings", response=SettingsSchema)
 def get_settings(request):
     settings = Settings.objects.first()
