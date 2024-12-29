@@ -61,11 +61,6 @@ const SubtitlesPage: React.FC = () => {
       title: 'Language',
       dataIndex: 'language',
       key: 'language',
-      render: (lang) => ({
-        en: 'English',
-        ko: 'Korean',
-        de: 'German'
-      }[lang] || lang),
     },
     {
       title: 'Transcribed',

@@ -35,7 +35,7 @@ class Subtitle(models.Model):
         unique_together = ('video', 'language',)
 
     video = models.ForeignKey(YouTubeVideo, on_delete=models.CASCADE, related_name='subtitles')
-    language = models.CharField(max_length=2, choices=[('en', 'English'), ('ko', 'Korean'), ('de', 'German')])
+    language = models.CharField(max_length=32)
     is_transcribed = models.BooleanField(default=True)
     content = models.TextField()
     created = models.DateTimeField(auto_now_add=True)

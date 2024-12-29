@@ -163,7 +163,7 @@ def transcribe_video(request, video_id: str):
 
     Subtitle.objects.create(
         video=video,
-        language='en',
+        language='English',
         is_transcribed=True,
         content=srt_content)
 
