@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space } from 'antd';
+import { Table, Button, Space, Image } from 'antd';
 import { EditOutlined, TranslationOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import TranscribeVideoModal from './TranscribeVideoModal';
 import TranslateSubtitleModal from './TranslateSubtitleModal';
@@ -65,9 +65,10 @@ const SubtitlesPage: React.FC = () => {
       key: 'id',
     },
     {
-      title: 'Video Title',
-      dataIndex: 'video_title',
-      key: 'video_title',
+      title: 'Video Thumbnail',
+      dataIndex: 'video_thumbnail_url',
+      key: 'video_thumbnail',
+      render: (url: string) => <Image height={60} src={url} preview={false} />,
     },
     {
       title: 'Language',
@@ -79,18 +80,6 @@ const SubtitlesPage: React.FC = () => {
       dataIndex: 'is_transcribed',
       key: 'is_transcribed',
       render: (value) => value ? 'Yes' : 'No',
-    },
-    {
-      title: 'Created',
-      dataIndex: 'created',
-      key: 'created',
-      render: (date) => new Date(date).toLocaleString(),
-    },
-    {
-      title: 'Updated',
-      dataIndex: 'updated',
-      key: 'updated',
-      render: (date) => new Date(date).toLocaleString(),
     },
     {
       title: 'Action',
@@ -160,7 +149,7 @@ const SubtitlesPage: React.FC = () => {
       />
       <EditSubtitleDrawer
         open={openDrawer}
-        item={editingItem}
+        subtitleId={editingItem?.id ?? null}
         onClose={handleCloseDrawer}
       />
       <TranscribeVideoModal

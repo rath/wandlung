@@ -13,7 +13,7 @@ interface SubtitleItem {
 
 interface EditSubtitleDrawerProps {
   open: boolean;
-  item: SubtitleItem | null;
+  subtitleId: number | null;
   onClose: () => void;
 }
 
@@ -21,22 +21,46 @@ const { TextArea } = Input;
 
 const EditSubtitleDrawer: React.FC<EditSubtitleDrawerProps> = ({
   open,
-  item,
+  subtitleId,
   onClose,
 }) => {
+  const [loading, setLoading] = useState(false);
+  const [subtitle, setSubtitle] = useState<SubtitleItem | null>(null);
   const [text, setText] = useState('');
 
   useEffect(() => {
-    if (item) {
-      setText(item.content);
+    const fetchSubtitle = async () => {
+      if (!subtitleId) return;
+
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/subtitles/${subtitleId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch subtitle');
+        }
+        const data = await response.json();
+        setSubtitle(data);
+        setText(data.content);
+      } catch (error) {
+        console.error('Error fetching subtitle:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (open && subtitleId) {
+      fetchSubtitle();
+    } else {
+      setSubtitle(null);
+      setText('');
     }
-  }, [item]);
+  }, [open, subtitleId]);
 
   const handleDelete = async () => {
-    if (!item) return;
+    if (!subtitleId) return;
 
     try {
-      const response = await fetch(`/api/subtitles/${item.id}`, {
+      const response = await fetch(`/api/subtitles/${subtitleId}`, {
         method: 'DELETE',
       });
 
@@ -51,10 +75,10 @@ const EditSubtitleDrawer: React.FC<EditSubtitleDrawerProps> = ({
   };
 
   const handleSave = async () => {
-    if (!item) return;
+    if (!subtitleId) return;
 
     try {
-      const response = await fetch(`/api/subtitles/${item.id}`, {
+      const response = await fetch(`/api/subtitles/${subtitleId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -74,7 +98,16 @@ const EditSubtitleDrawer: React.FC<EditSubtitleDrawerProps> = ({
 
   return (
     <Drawer
-      title={`Edit Subtitle: ${item?.video_title || ''}`}
+      title={
+        <div>
+          <div>Edit Subtitle: {subtitle?.video_title || ''}</div>
+          <div style={{ fontSize: '12px', color: '#666' }}>
+            Created: {subtitle?.created ? new Date(subtitle.created).toLocaleString() : '-'}
+            <br />
+            Updated: {subtitle?.updated ? new Date(subtitle.updated).toLocaleString() : '-'}
+          </div>
+        </div>
+      }
       placement="right"
       onClose={onClose}
       open={open}

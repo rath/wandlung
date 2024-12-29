@@ -38,6 +38,16 @@ from apps.utils import srt_to_webvtt
 api = NinjaAPI()
 
 
+
+class SubtitleListSchema(ModelSchema):
+    class Config:
+        model = Subtitle
+        model_fields = ['id', 'language', 'is_transcribed']
+
+    video_id: str = Field(..., alias='video.video_id')
+    video_thumbnail_url: str = Field(..., alias='video.signed_thumbnail_url')
+
+
 class SubtitleSchema(ModelSchema):
     class Config:
         model = Subtitle
@@ -204,7 +214,7 @@ def transcribe_video(request, video_id: str):
     return {'success': True}
 
 
-@api.get("/subtitles", response=List[SubtitleSchema])
+@api.get("/subtitles", response=List[SubtitleListSchema])
 @paginate(PageNumberPagination)
 def list_subtitles(request):
     return Subtitle.objects.select_related('video').order_by('-id')
