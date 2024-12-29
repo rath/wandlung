@@ -1,10 +1,25 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Modal } from 'antd';
+import { Modal, Input, Button, message } from 'antd';
 
 interface VideoInfo {
   video_url: string;
   title: string;
 }
+
+interface SubtitleInfo {
+  content: string;
+}
+
+const parseTimeToSeconds = (timeStr: string): number | null => {
+  const match = timeStr.match(/^(\d+):(\d{1,2})$/);
+  if (!match) return null;
+
+  const minutes = parseInt(match[1], 10);
+  const seconds = parseInt(match[2], 10);
+
+  if (seconds >= 60) return null;
+  return minutes * 60 + seconds;
+};
 
 interface VideoPlayerModalProps {
   open: boolean;
@@ -20,27 +35,91 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   onClose,
 }) => {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
+  const [subtitleInfo, setSubtitleInfo] = useState<SubtitleInfo | null>(null);
+  const [startTime, setStartTime] = useState<string>('');
+  const [endTime, setEndTime] = useState<string>('');
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const fetchVideoInfo = async () => {
-      if (!videoId) return;
+    const fetchData = async () => {
+      if (!videoId || !subtitleId) return;
 
       try {
-        const response = await fetch(`/api/videos/${videoId}`);
-        const data = await response.json();
-        setVideoInfo(data);
+        const [videoResponse, subtitleResponse] = await Promise.all([
+          fetch(`/api/videos/${videoId}`),
+          fetch(`/api/subtitles/${subtitleId}`)
+        ]);
+
+        const videoData = await videoResponse.json();
+        const subtitleData = await subtitleResponse.json();
+
+        setVideoInfo(videoData);
+        setSubtitleInfo(subtitleData);
       } catch (error) {
-        console.error('Error fetching video info:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    if (open && videoId) {
-      fetchVideoInfo();
+    if (open && videoId && subtitleId) {
+      fetchData();
     } else {
       setVideoInfo(null);
     }
-  }, [open, videoId]);
+  }, [open, videoId, subtitleId]);
+
+  const handleBurn = async () => {
+    if (!subtitleId) return;
+
+    const startSeconds = startTime ? parseTimeToSeconds(startTime) : null;
+    const endSeconds = endTime ? parseTimeToSeconds(endTime) : null;
+
+    if (startTime && startSeconds === null) {
+      message.error('Invalid start time format. Use MM:SS format (e.g., 2:30)');
+      return;
+    }
+
+    if (endTime && endSeconds === null) {
+      message.error('Invalid end time format. Use MM:SS format (e.g., 4:49)');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/subtitles/${subtitleId}/burn`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          start_seconds: startSeconds,
+          end_seconds: endSeconds,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Burn request failed');
+
+      // Get filename from Content-Disposition header if available
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filename = contentDisposition
+        ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+        : 'video-with-subtitle.mp4';
+
+      // Create a download link and trigger it
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      message.success('Video download started');
+    } catch (error) {
+      console.error('Error burning subtitle:', error);
+      message.error('Failed to burn subtitle into video');
+    }
+  };
 
   return (
     <Modal
@@ -55,6 +134,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
       }}
       footer={null}
       width={800}
+      style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
     >
       {videoInfo && (
         <video
@@ -72,6 +152,39 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
             />
           )}
         </video>
+      )}
+
+      {subtitleInfo && (
+        <>
+          <textarea
+            value={subtitleInfo.content}
+            readOnly
+            style={{
+              width: '100%',
+              height: '200px',
+              resize: 'vertical',
+              fontFamily: 'monospace',
+              padding: '8px',
+            }}
+          />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <Input
+              placeholder="Start time (MM:SS)"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              style={{ width: '150px' }}
+            />
+            <Input
+              placeholder="End time (MM:SS)"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              style={{ width: '150px' }}
+            />
+            <Button type="primary" onClick={handleBurn}>
+              Burn with subtitle
+            </Button>
+          </div>
+        </>
       )}
     </Modal>
   );

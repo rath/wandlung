@@ -8,7 +8,7 @@ from PIL import Image
 from django.conf import settings as django_settings
 from django.core.exceptions import ValidationError
 from django.core.files import File
-from django.http import HttpResponse
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from ffmpy import FFmpeg
 from typing import List, Optional
@@ -217,6 +217,12 @@ def get_subtitle_as_webvtt(request, subtitle_id: int):
     return HttpResponse(content, content_type='text/vtt')
 
 
+@api.get('/subtitles/{subtitle_id}', response=SubtitleSchema)
+def get_subtitle(request, subtitle_id: int):
+    subtitle = get_object_or_404(Subtitle, pk=subtitle_id)
+    return subtitle
+
+
 class SubtitleUpdateSchema(Schema):
     content: str
 
@@ -257,6 +263,57 @@ def translate_subtitle(request, subtitle_id: int, payload: TranslationRequest):
 
     except Subtitle.DoesNotExist:
         return api.create_response(request, {"detail": "Subtitle not found"}, status=404)
+
+
+class BurnRequest(Schema):
+    start_seconds: Optional[float] = None
+    end_seconds: Optional[float] = None
+
+
+def file_iterator(file_path, chunk_size=1024*8):
+    try:
+        with open(file_path, 'rb') as f:
+            while True:
+                chunk = f.read(chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+    finally:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+
+@api.post('/subtitles/{subtitle_id}/burn')
+def burn_subtitle(request, subtitle_id: int, payload: BurnRequest):
+    subtitle = get_object_or_404(Subtitle, pk=subtitle_id)
+
+    video_path = f'{subtitle.video.video_id}.mp4'
+    with open(video_path, 'wb') as f:
+        f.write(subtitle.video.original_video.read())
+
+    subtitle_path = f'{subtitle.video.video_id}.srt'
+    with open(subtitle_path, 'w') as f:
+        f.write(subtitle.content)
+
+    output_path = f'{subtitle.video.video_id}-with-{subtitle_id}.mp4'
+
+    ff = FFmpeg(
+        executable=django_settings.FFMPEG_BIN,
+        inputs={video_path: None},
+        outputs={output_path: '-y -c:a copy -filter:v '
+            f' subtitles="{subtitle_path}:force_style=\'FontName=BM Dohyeon,FontSize=22\'" '
+            f' -ss {payload.start_seconds or 0} '
+            f' -to {payload.end_seconds or subtitle.video.duration.total_seconds()}'},
+    )
+    ff.run()
+
+    os.remove(subtitle_path)
+    os.remove(video_path)
+
+    response = StreamingHttpResponse(file_iterator(output_path), content_type='video/mp4')
+    response['Content-Disposition'] = f'attachment; filename="{output_path}"'
+    response['Content-Length'] = os.path.getsize(output_path)
+    return response
 
 
 @api.delete("/subtitles/{subtitle_id}")
