@@ -60,14 +60,14 @@ const SubtitlesPage: React.FC = () => {
 
   const columns: ColumnsType<SubtitleItem> = [
     {
+      title: 'Id',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
       title: 'Video Title',
       dataIndex: 'video_title',
       key: 'video_title',
-    },
-    {
-      title: 'Video Id',
-      dataIndex: 'video_id',
-      key: 'video_id',
     },
     {
       title: 'Language',
