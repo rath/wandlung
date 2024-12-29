@@ -27,7 +27,6 @@ const TranslateSubtitleModal: React.FC<TranslateSubtitleModalProps> = ({
         },
         body: JSON.stringify({
           target_language: values.target_language,
-          system_prompt: values.system_prompt,
         }),
       });
 
@@ -64,12 +63,6 @@ const TranslateSubtitleModal: React.FC<TranslateSubtitleModalProps> = ({
           rules={[{ required: true, max: 32, message: 'Please input target language!' }]}
         >
           <Input placeholder="Enter target language" />
-        </Form.Item>
-        <Form.Item
-          name="system_prompt"
-          label="System Prompt"
-        >
-          <Input.TextArea rows={4} placeholder="Enter system prompt (optional)" />
         </Form.Item>
       </Form>
     </Modal>

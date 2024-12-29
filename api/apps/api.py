@@ -164,7 +164,7 @@ def transcribe_video(request, video_id: str):
 
     Subtitle.objects.create(
         video=video,
-        language='English',
+        language='English',  # FIXME: should be detected
         is_transcribed=True,
         content=srt_content)
 
@@ -194,7 +194,6 @@ def update_subtitle(request, subtitle_id: int, payload: SubtitleUpdateSchema):
 
 class TranslationRequest(Schema):
     target_language: str
-    system_prompt: Optional[str] = None
 
 
 @api.post("/subtitles/{subtitle_id}/translate")
