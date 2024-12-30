@@ -1,4 +1,3 @@
-
 def srt_to_webvtt(srt_content: str) -> str:
     """
     Convert the given SRT content to WebVTT format and return as a string.
@@ -29,4 +28,3 @@ def srt_to_webvtt(srt_content: str) -> str:
 
     # Join everything with newlines
     return '\n'.join(vtt_lines)
-

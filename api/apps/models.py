@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from apps.constants import VIDEO_HEIGHT_CHOICES
 from wandlung.storages import MediaStorage
 
 
@@ -47,14 +48,6 @@ class Subtitle(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
 
-VIDEO_HEIGHT_CHOICES = [
-    (240, '240p'),
-    (360, '360p'),
-    (480, '480p'),
-    (720, '720p'),
-    (1080, '1080p'),
-]
-
 class Settings(models.Model):
     class Meta:
         verbose_name = 'Settings'
@@ -69,4 +62,3 @@ class Settings(models.Model):
         if not self.pk and Settings.objects.exists():
             raise ValidationError('There can be only one Settings instance')
         super().save(*args, **kwargs)
-

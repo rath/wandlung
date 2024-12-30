@@ -18,7 +18,7 @@ class SubtitleAdmin(admin.ModelAdmin):
 @admin.register(Settings)
 class SettingsAdmin(admin.ModelAdmin):
     list_display = ('max_video_height', 'use_he_aac_v2')
-    
+
     def has_add_permission(self, request):
         # Prevent creating multiple Settings instances
         return not Settings.objects.exists()
@@ -26,4 +26,3 @@ class SettingsAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Prevent deleting the Settings instance
         return False
-
