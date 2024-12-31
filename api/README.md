@@ -36,6 +36,24 @@ Wandlung is a powerful video processing API built with **Django** + **Django Nin
 - **AI Services**: OpenAI and Anthropic Claude APIs
 - **Video Download**: yt-dlp for reliable YouTube video extraction
 
+## Testing
+
+The project uses pytest for testing. The test suite covers:
+
+- Model validations and relationships
+- Media URL signing functionality
+- Service layer business logic
+- API endpoint behaviors
+- Integration with external services
+
+To run the tests with coverage reporting:
+
+```bash
+uv run pytest --cov=apps --cov-report=term-missing
+```
+
+This will show test results and highlight any missing coverage in the `apps` directory.
+
 ## Documentation
 
 Explore our interactive API documentation at `/api/docs` for detailed endpoint specifications and examples.
