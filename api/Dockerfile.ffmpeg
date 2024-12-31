@@ -1,0 +1,77 @@
+# ========== Stage 1: Build FFmpeg ==========
+FROM ubuntu:22.04 AS ffmpeg-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install required packages for building FFmpeg
+RUN apt-get update && apt-get install -y \
+    autoconf \
+    automake \
+    build-essential \
+    cmake \
+    git \
+    libtool \
+    pkg-config \
+    yasm \
+    nasm \
+    wget \
+    libssl-dev \
+    libfdk-aac-dev \
+    libopus-dev \
+    libvpx-dev \
+    libx264-dev \
+    libx265-dev \
+    libnuma-dev \
+    zlib1g-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /build
+
+# Clone FFmpeg (depth=1 for a smaller clone)
+RUN git clone --depth 1 https://github.com/FFmpeg/FFmpeg.git
+
+WORKDIR /build/FFmpeg
+
+# Configure FFmpeg with desired options, including libfdk-aac
+RUN ./configure \
+    --prefix=/usr/local \
+    --enable-gpl \
+    --enable-nonfree \
+    --enable-version3 \
+    --enable-small \
+    --enable-libfdk_aac \
+    --enable-libopus \
+    --enable-libvpx \
+    --enable-libx264 \
+    --enable-libx265 \
+    --disable-static \
+    --enable-shared
+
+# Build FFmpeg
+RUN make -j"$(nproc)"
+
+# Install FFmpeg to /usr/local
+RUN make install && ldconfig
+
+
+# ========== Stage 2: Create minimal runtime image ==========
+FROM ubuntu:22.04
+
+# We only need the FFmpeg binaries and runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libfdk-aac2 \
+    libopus0 \
+    libvpx7 \
+    libx264-163 \
+    libx265-199 \
+    zlib1g \
+    libssl3 \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ffmpeg-builder /usr/local /usr/local
+RUN ldconfig
+RUN ffmpeg -version
+
+ENTRYPOINT ["ffmpeg"]
+
