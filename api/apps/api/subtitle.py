@@ -55,3 +55,9 @@ def translate_subtitle(request, subtitle_id: int, payload: TranslationRequest):
 def burn_subtitle(request, subtitle_id: int, payload: BurnRequest):
     subtitle_service = SubtitleService()
     return subtitle_service.burn_subtitle(subtitle_id, payload.start_seconds, payload.end_seconds)
+
+@api.delete('/{subtitle_id}')
+def delete_subtitle(request, subtitle_id: int):
+    subtitle = get_object_or_404(Subtitle, pk=subtitle_id)
+    subtitle.delete()
+    return {"success": True}

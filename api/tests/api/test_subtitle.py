@@ -55,6 +55,14 @@ class TestSubtitleAPI:
         assert response.status_code == 200
         assert response.json() == {"success": True}
 
+    def test_delete_subtitle(self, client, subtitle):
+        response = client.delete(f"/api/subtitles/{subtitle.id}")
+        assert response.status_code == 200
+        assert response.json() == {"success": True}
+        # Verify subtitle was actually deleted
+        response = client.get(f"/api/subtitles/{subtitle.id}")
+        assert response.status_code == 404
+
     @patch.object(SubtitleService, 'burn_subtitle')
     def test_burn_subtitle(self, mock_burn, client, subtitle):
         mock_burn.return_value = {"success": True}
