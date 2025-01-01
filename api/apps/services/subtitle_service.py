@@ -97,7 +97,6 @@ class SubtitleService:
                 model='claude-3-5-sonnet-20241022',
                 system=system_prompt,
                 max_tokens=4096,
-                temperature=0.4,
                 messages=histories,
             )
             message = response.content[0].text
