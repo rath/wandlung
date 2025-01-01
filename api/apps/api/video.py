@@ -1,4 +1,5 @@
 import os
+from typing import Dict, Any
 
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -19,48 +20,42 @@ def download_video(request, payload: VideoDownloadRequest):
     return video_service.download_video(payload.url)
 
 
+def serialize_video(video: YouTubeVideo, include_urls: bool = False) -> Dict[str, Any]:
+    """Convert a video instance to a dictionary with common fields."""
+    data = {
+        'video_id': video.video_id,
+        'title': video.title,
+        'thumbnail_url': video.signed_thumbnail_url(),
+        'duration': video.duration.total_seconds(),
+    }
+    
+    # Add optional fields for full video details
+    if include_urls:
+        data.update({
+            'video_url': video.signed_video_url(),
+            'width': video.width,
+            'height': video.height,
+        })
+    
+    return data
+
+
 @api.get('')
 def list_videos(request):
     videos = YouTubeVideo.objects.all().order_by('-id')
-    video_list = []
-    for video in videos:
-        video_list.append({
-            'video_id': video.video_id,
-            'thumbnail_url': video.signed_thumbnail_url(),
-            'duration': video.duration.total_seconds(),
-            'width': video.width,
-            'height': video.height,
-            'title': video.title,
-        })
-    return video_list
+    return [serialize_video(video, include_urls=True) for video in videos]
 
 
 @api.get('/recent')
 def list_recent_videos(request):
     videos = YouTubeVideo.objects.all().order_by('-id')
-    video_list = []
-    for video in videos:
-        video_list.append({
-            'video_id': video.video_id,
-            'title': video.title,
-            'thumbnail_url': video.signed_thumbnail_url(),
-            'duration': video.duration.total_seconds(),
-        })
-    return video_list
+    return [serialize_video(video) for video in videos]
 
 
 @api.get('/{video_id}')
 def get_video(request, video_id: str):
     video = get_object_or_404(YouTubeVideo, video_id=video_id)
-    return {
-        'video_id': video.video_id,
-        'thumbnail_url': video.signed_thumbnail_url(),
-        'video_url': video.signed_video_url(),
-        'duration': video.duration.total_seconds(),
-        'width': video.width,
-        'height': video.height,
-        'title': video.title,
-    }
+    return serialize_video(video, include_urls=True)
 
 
 @api.post('/{video_id}/transcribe')
