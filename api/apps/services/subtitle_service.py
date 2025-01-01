@@ -3,7 +3,7 @@ from typing import Optional
 from django.core.exceptions import ValidationError
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
-from ffmpy import FFmpeg
+import ffmpy
 import orjson
 import openai
 import anthropic
@@ -132,7 +132,7 @@ class SubtitleService:
             with open(subtitle_path, 'w') as f:
                 f.write(subtitle.content)
 
-            ff = FFmpeg(
+            ff = ffmpy.FFmpeg(
                 inputs={video_path: None},
                 outputs={output_path: '-y -c:a copy -filter:v '
                                       f' subtitles="{subtitle_path}:force_style=\'FontName=BM Dohyeon,FontSize=22\'" '
@@ -165,5 +165,6 @@ class SubtitleService:
 
         response = StreamingHttpResponse(file_iterator(), content_type='video/mp4')
         response['Content-Disposition'] = f'attachment; filename="{os.path.basename(video_path)}"'
-        response['Content-Length'] = os.path.getsize(video_path)
+        if os.path.exists(video_path):
+            response['Content-Length'] = os.path.getsize(video_path)
         return response

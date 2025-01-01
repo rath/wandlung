@@ -8,7 +8,7 @@ import yt_dlp
 from PIL import Image
 from django.core.exceptions import ValidationError
 from django.core.files import File
-from ffmpy import FFmpeg
+import ffmpy
 
 from apps.models import YouTubeVideo, Settings
 from apps.exceptions import VideoProcessingError
@@ -82,7 +82,7 @@ class VideoService:
         audio_path = f'{video_id}.m4a'
         audio_codec = AUDIO_CODECS['AAC_HE_V2'] if self.settings.use_he_aac_v2 else AUDIO_CODECS['AAC']
 
-        ff = FFmpeg(
+        ff = ffmpy.FFmpeg(
             inputs={video_path: None},
             outputs={audio_path: f'-y -c:a {audio_codec["codec"]} -b:a {audio_codec["bitrate"]} -vn'}
         )
