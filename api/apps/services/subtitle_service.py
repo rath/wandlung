@@ -5,7 +5,7 @@ from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from ffmpy import FFmpeg
 import orjson
-from openai import OpenAI
+import openai
 import anthropic
 
 from apps.models import Subtitle, Settings, YouTubeVideo
@@ -23,11 +23,11 @@ class SubtitleService:
         if not self.settings.openai_api_key:
             raise ValidationError('OpenAI API Key not set')
 
+        audio_path = f'{video_id}.m4a'
         try:
             video = get_object_or_404(YouTubeVideo, video_id=video_id)
-            client = OpenAI(api_key=self.settings.openai_api_key)
+            client = openai.OpenAI(api_key=self.settings.openai_api_key)
 
-            audio_path = f'{video_id}.m4a'
             with open(audio_path, 'wb') as audio_file:
                 audio_file.write(video.audio.read())
 

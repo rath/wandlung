@@ -38,11 +38,6 @@ class TestVideoAPI:
 
     @patch('openai.OpenAI')
     def test_transcribe_video(self, MockOpenAI, client, video, settings):
-        # Create mock response object that matches OpenAI's structure
-        mock_response = Mock()
-        mock_response.model = "whisper-1"
-        mock_response.text = "1\n00:00:00,000 --> 00:00:05,000\nTest transcription"
-
         # Create mock instance and response
         mock_instance = Mock()
         mock_audio = Mock()
@@ -52,7 +47,7 @@ class TestVideoAPI:
         MockOpenAI.return_value = mock_instance
         mock_instance.audio = mock_audio
         mock_audio.transcriptions = mock_transcriptions
-        mock_transcriptions.create.return_value = mock_response
+        mock_transcriptions.create.return_value = "1\n00:00:00,000 --> 00:00:05,000\nTest transcription"
 
         response = client.post(f"/api/videos/{video.video_id}/transcribe")
         assert response.status_code == 200

@@ -3,9 +3,8 @@ import os
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from ninja import Router
-from ninja.pagination import paginate, PageNumberPagination
 
-from openai import OpenAI
+import openai
 
 from apps.models import YouTubeVideo, Subtitle, Settings
 from apps.services.video_service import VideoService
@@ -73,7 +72,7 @@ def transcribe_video(request, video_id: str):
         raise ValidationError('OpenAI API Key not set')
 
     video = get_object_or_404(YouTubeVideo, video_id=video_id)
-    client = OpenAI(api_key=settings.openai_api_key)
+    client = openai.OpenAI(api_key=settings.openai_api_key)
 
     audio_path = f'{video_id}.m4a'
     with open(audio_path, 'wb') as audio_file:

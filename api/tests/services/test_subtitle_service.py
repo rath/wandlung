@@ -31,7 +31,7 @@ class TestSubtitleService:
             result = service.transcribe_video(video.video_id)
 
         assert result == {'success': True}
-        assert video.subtitle_set.filter(language='English', is_transcribed=True).exists()
+        assert video.subtitles.filter(language='English', is_transcribed=True).exists()
 
     @patch('openai.OpenAI')
     def test_transcribe_video_failure(self, mock_openai, settings, video):
@@ -60,7 +60,7 @@ class TestSubtitleService:
         settings.save()
 
         service = SubtitleService()
-        with pytest.raises(ValidationError, match='Anthropic API Key not found'):
+        with pytest.raises(SubtitleError, match='Anthropic API Key not found'):
             service.translate_subtitle(subtitle.id, "Spanish")
 
     @patch('ffmpy.FFmpeg')
