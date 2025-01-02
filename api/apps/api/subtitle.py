@@ -48,7 +48,7 @@ def update_subtitle(request, subtitle_id: int, payload: SubtitleUpdateSchema):
 @api.post('/{subtitle_id}/translate')
 def translate_subtitle(request, subtitle_id: int, payload: TranslationRequest):
     subtitle_service = SubtitleService()
-    return subtitle_service.translate_subtitle(subtitle_id, payload.target_language)
+    return subtitle_service.translate_subtitle(subtitle_id, payload.target_language, payload.temperature)
 
 
 @api.post('/{subtitle_id}/burn')

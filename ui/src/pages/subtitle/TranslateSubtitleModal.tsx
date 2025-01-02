@@ -27,6 +27,7 @@ const TranslateSubtitleModal: React.FC<TranslateSubtitleModalProps> = ({
         },
         body: JSON.stringify({
           target_language: values.target_language,
+          temperature: values.temperature,
         }),
       });
 
@@ -63,6 +64,32 @@ const TranslateSubtitleModal: React.FC<TranslateSubtitleModalProps> = ({
           rules={[{ required: true, max: 32, message: 'Please input target language!' }]}
         >
           <Input placeholder="Enter target language" />
+        </Form.Item>
+        <Form.Item
+          name="temperature"
+          label="Temperature"
+          tooltip="Optional: Controls randomness in translation (0.0 to 1.0)"
+          rules={[
+            {
+              validator: async (_, value) => {
+                if (value === undefined || value === '') {
+                  return Promise.resolve();
+                }
+                const num = parseFloat(value);
+                if (isNaN(num) || num < 0 || num > 1) {
+                  return Promise.reject('Temperature must be between 0 and 1');
+                }
+                return Promise.resolve();
+              }
+            }
+          ]}
+          getValueFromEvent={(e) => e.target.value === '' ? undefined : e.target.value}
+        >
+          <Input
+            type="number"
+            step="0.1"
+            placeholder="Enter temperature (0.0 to 1.0)"
+          />
         </Form.Item>
       </Form>
     </Modal>

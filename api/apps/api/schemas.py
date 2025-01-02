@@ -38,6 +38,7 @@ class SubtitleUpdateSchema(Schema):
 
 class TranslationRequest(Schema):
     target_language: str
+    temperature: Optional[float] = None
 
 
 class BurnRequest(Schema):

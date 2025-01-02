@@ -51,10 +51,10 @@ class SubtitleService:
             if os.path.exists(audio_path):
                 os.remove(audio_path)
 
-    def translate_subtitle(self, subtitle_id: int, target_language: str) -> dict:
+    def translate_subtitle(self, subtitle_id: int, target_language: str, temperature: Optional[float]) -> dict:
         try:
             source = get_object_or_404(Subtitle, id=subtitle_id)
-            translated = self._translate_subtitle_anthropic(source, target_language)
+            translated = self._translate_subtitle_anthropic(source, target_language, temperature)
 
             Subtitle.objects.create(
                 video=source.video,
@@ -67,7 +67,7 @@ class SubtitleService:
         except Exception as e:
             raise SubtitleError(f"Failed to translate subtitle: {str(e)}")
 
-    def _translate_subtitle_anthropic(self, source: Subtitle, target_language: str) -> str:
+    def _translate_subtitle_anthropic(self, source: Subtitle, target_language: str, temperature: Optional[float]) -> str:
         settings = Settings.objects.first()
         if not settings:
             raise ValidationError('Settings not found')
@@ -97,6 +97,7 @@ class SubtitleService:
                 model='claude-3-5-sonnet-20241022',
                 system=system_prompt,
                 max_tokens=4096,
+                temperature=temperature,
                 messages=histories,
             )
             message = response.content[0].text
