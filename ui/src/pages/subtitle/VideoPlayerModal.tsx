@@ -10,6 +10,11 @@ interface SubtitleInfo {
   content: string;
 }
 
+interface UpdateSubtitleResponse {
+  success: boolean;
+  message?: string;
+}
+
 const parseTimeToSeconds = (timeStr: string): number | null => {
   const match = timeStr.match(/^(\d+):(\d{1,2})$/);
   if (!match) return null;
@@ -36,6 +41,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 }) => {
   const [videoInfo, setVideoInfo] = useState<VideoInfo | null>(null);
   const [subtitleInfo, setSubtitleInfo] = useState<SubtitleInfo | null>(null);
+  const [editedContent, setEditedContent] = useState<string>('');
   const [startTime, setStartTime] = useState<string>('');
   const [endTime, setEndTime] = useState<string>('');
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -55,6 +61,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
         setVideoInfo(videoData);
         setSubtitleInfo(subtitleData);
+        setEditedContent(subtitleData.content);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -66,6 +73,36 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
       setVideoInfo(null);
     }
   }, [open, videoId, subtitleId]);
+
+  const handleSaveSubtitle = async () => {
+    if (!subtitleId) return;
+
+    try {
+      const response = await fetch(`/api/subtitles/${subtitleId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: editedContent,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update subtitle');
+
+      const result: UpdateSubtitleResponse = await response.json();
+
+      if (result.success) {
+        message.success('Subtitle updated successfully');
+        setSubtitleInfo({ ...subtitleInfo!, content: editedContent });
+      } else {
+        throw new Error(result.message || 'Failed to update subtitle');
+      }
+    } catch (error) {
+      console.error('Error updating subtitle:', error);
+      message.error('Failed to update subtitle');
+    }
+  };
 
   const handleBurn = async () => {
     if (!subtitleId) return;
@@ -156,33 +193,39 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
       {subtitleInfo && (
         <>
-          <textarea
-            value={subtitleInfo.content}
-            readOnly
-            style={{
-              width: '100%',
-              height: '200px',
-              resize: 'vertical',
-              fontFamily: 'monospace',
-              padding: '8px',
-            }}
-          />
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <Input
-              placeholder="Start time (MM:SS)"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              style={{ width: '150px' }}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              style={{
+                width: '100%',
+                height: '200px',
+                resize: 'vertical',
+                fontFamily: 'monospace',
+                padding: '8px',
+              }}
             />
-            <Input
-              placeholder="End time (MM:SS)"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              style={{ width: '150px' }}
-            />
-            <Button type="primary" onClick={handleBurn}>
-              Burn with subtitle
-            </Button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Button type="primary" onClick={handleSaveSubtitle}>
+                Save Subtitle
+              </Button>
+              <div style={{ flex: 1 }} />
+              <Input
+                placeholder="Start time (MM:SS)"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                style={{ width: '150px' }}
+              />
+              <Input
+                placeholder="End time (MM:SS)"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                style={{ width: '150px' }}
+              />
+              <Button type="primary" onClick={handleBurn}>
+                Burn with subtitle
+              </Button>
+            </div>
           </div>
         </>
       )}
