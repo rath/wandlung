@@ -50,7 +50,7 @@ class TestSubtitleService:
         mock_anthropic.return_value = mock_client
 
         service = SubtitleService()
-        result = service.translate_subtitle(subtitle.id, "Spanish")
+        result = service.translate_subtitle(subtitle.id, "Spanish", temperature=None)
 
         assert result == {'success': True}
         assert subtitle.video.subtitles.filter(language='Spanish', is_transcribed=False).exists()
@@ -61,7 +61,7 @@ class TestSubtitleService:
 
         service = SubtitleService()
         with pytest.raises(SubtitleError, match='Anthropic API Key not found'):
-            service.translate_subtitle(subtitle.id, "Spanish")
+            service.translate_subtitle(subtitle.id, "Spanish", temperature=None)
 
     @patch('ffmpy.FFmpeg')
     def test_burn_subtitle(self, mock_ffmpeg, settings, subtitle):
